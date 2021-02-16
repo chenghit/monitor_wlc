@@ -14,7 +14,7 @@ port = 465
 smtp_server = "smtp.sina.com"
 sender_email = "chenghit@sina.com"
 receiver_email = "chenghit@qq.com"
-password = 'c25f905226806a23'
+password = '***'
 # 因为新浪邮箱会校验邮件正文和From，所以需要为邮件正文添加一个前缀
 pre = 'From:{}'.format(sender_email)
 
