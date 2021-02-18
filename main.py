@@ -4,17 +4,18 @@ import re
 import json
 import logging
 from netmiko import Netmiko
+from getpass import getpass
 
 from sendEmail.send_email import send_email
 
 
 log_path = 'monitor_wlc.log'
 log_format = '%(asctime)s %(funcName)s:%(levelname)s:%(message)s'
-logging.basicConfig(level='INFO', filename=log_path, format=log_format)
+logging.basicConfig(level='INFO', filename= log_path, format=log_format)
 CMD_AP_SUMMARY = 'show ap summary'
 CMD_AUTO_RF = 'show ap auto-rf 802.11a '
 
-
+password = getpass()
 gaoke_wlc = {
     'host': '10.124.37.52',
     'username': 'admin',
@@ -43,6 +44,9 @@ def updateApNameModelClientsDict(ap_dict, output_ap_summary):
             }
         }
     '''
+    msg = '正在更新AP的客户端数量...'
+    print(msg)
+    logging.info(msg)
     for line in output_ap_summary:
         s = re.search(mac_pattern, line)
         if s is not None:
@@ -50,7 +54,13 @@ def updateApNameModelClientsDict(ap_dict, output_ap_summary):
             try:
                 ap_dict.update({line[0]: {'ap_model': line[2], 'clients': int(line[8])}})
             except ValueError:
-                ap_dict.update({line[0]: {'ap_model': line[2], 'clients': int(line[7])}})
+                try:
+                    ap_dict.update({line[0]: {'ap_model': line[2], 'clients': int(line[7])}})
+                except ValueError:
+                    ap_dict.update({line[0]: {'ap_model': line[2], 'clients': int(line[9])}})
+    msg = '客户端数量更新完成'
+    print(msg)
+    logging.info(msg)
     return ap_dict
 
 
@@ -103,9 +113,14 @@ def updateNearbyAps(ap_dict):
             }
         }
     '''
+    msg = '正在更新Nearby信息...'
+    print(msg)
+    logging.info()
     for ap_name in ap_dict.keys():
         nearby_dict = findNearbyAps(ap_name)
         ap_dict[ap_name].update({'nearby_aps': nearby_dict})
+    msg = 'Nearby信息更新完成'
+    print(msg)
     return ap_dict
 
 
@@ -118,11 +133,11 @@ def compareClients(ap_dict):
     :return: 以下格式的列表，列表中每个 item 都是一个元组：
     [(<C9120的客户端数量>, <C9120的AP名称>, <它的邻居的客户端数量>, <邻居的AP名称>), (略...)]
     '''
+    msg = '正在检测客户端数量异常的C9120...'
+    print(msg)
+    logging.info(msg)
     abnormal_list = []
     for ap_name in ap_dict.keys():
-        msg = '正在检查{}和它邻居AP的客户端数量'.format(ap_name)
-        logging.info(msg)
-        print(msg)
         clients = ap_dict[ap_name]['clients']
         if 'C9120AX' in ap_dict[ap_name]['ap_model'] and clients <= 5 and \
                 len(ap_dict[ap_name]['nearby_aps']) > 0:
@@ -135,9 +150,9 @@ def compareClients(ap_dict):
                 nearby_clients = ap_dict[nearby]['clients']
                 if nearby_clients <= 5 and 'C9120AX' in ap_dict[nearby]['ap_model']:
                     abnormal_list.append((nearby, nearby_clients, ap_name, clients))
-        msg = '{}检查完毕'.format(ap_name)
-        print(msg)
-        logging.info(msg)
+    msg = '生成异常C9120列表...'
+    print(msg)
+    logging.info(msg)
     return abnormal_list
 
 
@@ -149,7 +164,9 @@ def alert(abnormal_list):
     lst = []
     message = ''
     if len(abnormal_list) == 0:
-        logging.info('没有检测到异常')
+        msg = '没有检测到客户端数量异常的C9120'
+        print(msg)
+        logging.info(msg)
     else:
         for i in abnormal_list:
             msg = '{} 只有 {} 个客户端，但它旁边的 {} 有 {} 个客户端'.format(*i)
@@ -187,6 +204,7 @@ def main(json_path):
 
 if __name__ == '__main__':
     main(json_path)
+    logging.info('程序执行完毕')
     print()
     print('-' * 80)
     print()
