@@ -120,7 +120,9 @@ def compareClients(ap_dict):
     '''
     abnormal_list = []
     for ap_name in ap_dict.keys():
-        logging.info('正在检查{}和它邻居AP的客户端数量'.format(ap_name))
+        msg = '正在检查{}和它邻居AP的客户端数量'.format(ap_name)
+        logging.info(msg)
+        print(msg)
         clients = ap_dict[ap_name]['clients']
         if 'C9120AX' in ap_dict[ap_name]['ap_model'] and clients <= 5 and \
                 len(ap_dict[ap_name]['nearby_aps']) > 0:
@@ -133,7 +135,9 @@ def compareClients(ap_dict):
                 nearby_clients = ap_dict[nearby]['clients']
                 if nearby_clients <= 5 and 'C9120AX' in ap_dict[nearby]['ap_model']:
                     abnormal_list.append((nearby, nearby_clients, ap_name, clients))
-        logging.info('{}检查完毕'.format(ap_name))
+        msg = '{}检查完毕'.format(ap_name)
+        print(msg)
+        logging.info(msg)
     return abnormal_list
 
 
@@ -149,13 +153,16 @@ def alert(abnormal_list):
     else:
         for i in abnormal_list:
             msg = '{} 只有 {} 个客户端，但它旁边的 {} 有 {} 个客户端'.format(*i)
+            print(msg)
             logging.warning(msg)
             lst.append(msg)
         message = '\n'.join(lst)
 
     if message != '':
         send_email(message)
-        logging.info('已发送告警邮件')
+        msg = '已发送告警邮件'
+        print(msg)
+        logging.info(msg)
 
 
 def main(json_path):
