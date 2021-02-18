@@ -4,7 +4,6 @@ import re
 import json
 import logging
 from netmiko import Netmiko
-from getpass import getpass
 
 from sendEmail.send_email import send_email
 
@@ -15,8 +14,6 @@ logging.basicConfig(level='INFO', filename=log_path, format=log_format)
 CMD_AP_SUMMARY = 'show ap summary'
 CMD_AUTO_RF = 'show ap auto-rf 802.11a '
 
-password = getpass()
-mail_pwd = 'wxveDzx7AUKM7Df'
 
 gaoke_wlc = {
     'host': '10.124.37.52',
@@ -123,6 +120,7 @@ def compareClients(ap_dict):
     '''
     abnormal_list = []
     for ap_name in ap_dict.keys():
+        logging.info('正在检查{}和它邻居AP的客户端数量'.format(ap_name))
         clients = ap_dict[ap_name]['clients']
         if 'C9120AX' in ap_dict[ap_name]['ap_model'] and clients <= 5 and \
                 len(ap_dict[ap_name]['nearby_aps']) > 0:
@@ -135,6 +133,7 @@ def compareClients(ap_dict):
                 nearby_clients = ap_dict[nearby]['clients']
                 if nearby_clients <= 5 and 'C9120AX' in ap_dict[nearby]['ap_model']:
                     abnormal_list.append((nearby, nearby_clients, ap_name, clients))
+        logging.info('{}检查完毕'.format(ap_name))
     return abnormal_list
 
 
