@@ -37,9 +37,9 @@ AP Name.......................................... {{ ap_name }}
 '''
 
 gaoke_wlc = {
-    'host': '10.124.37.52',
+    'host': '10.*.*.*',
     'username': 'admin',
-    'password': 'cisco!123',
+    'password': '***',
     'device_type': 'cisco_wlc'
 }
 
