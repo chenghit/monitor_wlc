@@ -84,14 +84,14 @@ def compareClients(ap_dict):
         clients = ap_dict[ap_name][1]['clients']
         if 'C9120AX' in ap_dict[ap_name][0]['pid'] and clients <= 5 and \
                 'nearby' in ap_dict[ap_name][1].keys():
-            for nearby in ap_dict[ap_name][1]['nearby'].keys():
-                if nearby['rssi'] > -49:
+            for nearby, dict in ap_dict[ap_name][1]['nearby'].items():
+                if dict['rssi'] > -49:
                     nearby_clients = ap_dict[nearby][1]['clients']
                     if nearby_clients >= 40:
                         abnormal_list.append((ap_name, clients, nearby, nearby_clients))
         elif clients >= 40 and 'nearby' in ap_dict[ap_name][1].keys():
-            for nearby in ap_dict[ap_name][1]['nearby'].keys():
-                if nearby['rssi'] > -49:
+            for nearby, dict in ap_dict[ap_name][1]['nearby'].items():
+                if dict['rssi'] > -49:
                     nearby_clients = ap_dict[nearby][1]['clients']
                     if nearby_clients <= 5 and 'C9120AX' in ap_dict[nearby][0]['pid']:
                         abnormal_list.append((nearby, nearby_clients, ap_name, clients))
